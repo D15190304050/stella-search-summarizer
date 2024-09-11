@@ -1,0 +1,10 @@
+minio:
+    endpoint: localhost:10074
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket-name-videos: stella-videos
+
+redis:
+    host: localhost
+    port: 10079
+    db: 0
