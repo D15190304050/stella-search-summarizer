@@ -19,7 +19,7 @@ if __name__ == "__main__":
     )
 
     # 指定需要列出对象的bucket名称
-    bucket_name = config.minio_bucket_name_videos
+    bucket_name = config.minio_bucket_name_video_subtitles
 
     # 调用函数列出bucket中的对象
     list_objects(minioClient, bucket_name)

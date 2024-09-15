@@ -1,13 +1,31 @@
+import warnings
+warnings.filterwarnings('ignore')
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from backend.main import SubtitleGenerator
 from minio import Minio
+import uuid
+import tempfile
 import subprocess
 from Configuration import Configuration
 
 config = Configuration()
 
+def generate_unique_temp_filename(prefix: str = "", extension: str = ".txt") -> str:
+    """生成一个唯一的临时文件名"""
+    temp_dir: str = ".."
+    unique_name: str = prefix + str(uuid.uuid4()) + extension
+    return os.path.join(temp_dir, unique_name)
+
 def stream_extract_audio(minio_client, bucket_name, object_name):
+    audio_file_path: str = generate_unique_temp_filename(prefix="audio-", extension=".mp3")
+    file_path: str = audio_file_path
+    # file_path = "D:/DinoStark/Temp/output_audio_1.mp3"
+
     # 创建一个子进程来运行 ffmpeg 命令
     ffmpeg_process = subprocess.Popen(
-        ["ffmpeg", "-i", "pipe:", "-vn", "-ar", "44100", "-ac", "2", "-ab", "192k", "-f", "mp3", "D:/DinoStark/Temp/output_audio.mp3"],
+        ["ffmpeg", "-i", "pipe:", "-vn", "-ar", "44100", "-ac", "2", "-ab", "192k", "-f", "mp3", file_path],
         stdin=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
@@ -36,6 +54,8 @@ def stream_extract_audio(minio_client, bucket_name, object_name):
         ffmpeg_process.terminate()
         ffmpeg_process.wait()
 
+    return audio_file_path
+
 
 if __name__ == "__main__":
     minioClient = Minio(
@@ -48,4 +68,9 @@ if __name__ == "__main__":
     bucket_name = config.minio_bucket_name_video_subtitles
     object_name = "videoUpload-2-1725461754385-2100b64f-96cd-4ab6-8b05-a342119edb10.mp4"
 
-    stream_extract_audio(minioClient, bucket_name, object_name)
+    audio_file_path: str = stream_extract_audio(minioClient, bucket_name, object_name)
+    sg: SubtitleGenerator = SubtitleGenerator(audio_file_path)
+    subtitle_file_path: str = sg.run()
+
+    os.remove(audio_file_path)
+    # os.remove(subtitle_file_path)
