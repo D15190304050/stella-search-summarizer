@@ -33,8 +33,8 @@ class KafkaConsumer:
                     else:
                         raise KafkaException(msg.error())
                 else:
-                    message_value = msg.value()
-                    logger.info(f'Received message: {message_value.decode("utf-8")}')
+                    message_value = msg.value().decode("utf-8")
+                    logger.info(f'Received message: {message_value}')
                     handler(message = message_value)
                     self.consumer.commit()
 
