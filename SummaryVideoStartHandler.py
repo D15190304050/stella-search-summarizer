@@ -44,6 +44,11 @@ class SummaryVideoStartHandler:
         self.handle2(kwargs["message"])
 
     def handle2(self, message: str):
+        """
+        handle something, a placeholder.
+        :param message:
+        :return:
+        """
         pass
 
     def handle(self, message: str):
